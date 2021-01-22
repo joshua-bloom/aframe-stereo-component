@@ -3,13 +3,14 @@
     <title>A-Frame Layer Component - Basic</title>
     <script src="../build.js"></script>
   </head>
-  <body>
+   <body onload="myFunction()">
+      
 
     <a-scene antialias="true">
       <!-- Paths to left and right images -->
       <a-assets>
-        <img id="left" src="http://i.imgur.com/YAaxpv6.jpg">
-        <img id="right" src="http://i.imgur.com/JUxTnzK.jpg">
+        <img id="left" src="textures/jonas-l.jpg">
+        <img id="right" src="textures/jonas-r.jpg">
       </a-assets>
 
       <!-- Camera -->
@@ -19,13 +20,104 @@
       <a-sky id="sky1" src="#left" stereo="eye:left"></a-sky>
       <a-sky id="sky2" src="#right" stereo="eye:right"></a-sky>
 
-      <-- or alternatively -->
+      <!-- or alternatively -->
 
       <!--<a-sky id="sky1" src="http://i.imgur.com/YAaxpv6.jpg" stereo="eye:left"></a-sky>-->
       <!--<a-sky id="sky2" src="http://i.imgur.com/JUxTnzK.jpg" stereo="eye:right"></a-sky>-->
 
 
     </a-scene>
+      
+    <script>
+        
+        function requestPermissions() {
+            /*
+              https://medium.com/flawless-app-stories/how-to-request-device-motion-and-orientation-permission-in-ios-13-74fc9d6cd140
+              https://dev.to/li/how-to-requestpermission-for-devicemotion-and-deviceorientation-events-in-ios-13-46g2
+            */
+          
+            // feature detect and permissions request to Motion events on iOS 13+ devices
+            if (DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function') {
+              DeviceMotionEvent.requestPermission()
+                .then(response => {
+                  if (response === 'granted') {
+                    window.addEventListener('devicemotion', (e) => {
+                      console.log("device motion event detected :", e);
+                    });
+                  }
+                })
+                .catch(console.error);
+            } else {
+              // handle regular non iOS 13+ devices
+              console.log("non iOS device");
+            }
+
+            // feature detect and permissions request to Orientation events on iOS 13+ devices
+            if (DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function') {
+              DeviceOrientationEvent.requestPermission()
+                .then(response => {
+                  if (response === 'granted') {
+                    window.addEventListener('deviceorientation', () => {
+                      console.log("device orientation event detected :", e);
+                    });
+                  }
+                })
+                .catch(console.error);
+            } else {
+              // handle regular non iOS 13+ devices
+              console.log("non iOS device");
+            }  
+        }
+        
+        
+        function myFunction() {
+            /*
+                This function is called when the webpage has finished loading/importing all of the JS and CSS files. 
+                In our case, this means that the build.js file has executed and the 'enter VR' button is now displayed 
+                on the webpage in the bottom righthand corner. At this point, we can safely identify the 'enter VR' button 
+                by searching the 'document' for an HTML element with the class name 'a-enter-vr-button'. When we find it, 
+                we can then set its 'onclick' attribute to call any function we want. In our case, we want to call a function 
+                that can request the appropriate device permissions from mobile iOS users. And, the code to request those 
+                permissions is in my 'requestPermissions' function above, so let's tell the 'enter VR' button to call it when clicked:
+                
+                    document.getElementsByClassName("a-enter-vr-button").item(0).setAttribute("onclick", "requestPermissions()");
+                                
+                Now, when I print the 'enter VR' HTML button to the console, I can see that 'onclick' is set to 'requestPermissions()'. 
+                        
+                    <button class="a-enter-vr-button" aframe-injected="" onclick="requestPermissions()"></button>
+                
+                Assuming the code in the requestPermissions() function is written correctly, the user will now be prompted to grant
+                Device Motion and Device Orientation permissions after clicking on the 'enter VR' button.  If the user clicks 'allow', 
+                then the browser window will now be able to listen for device motion/orientation events and, in turn, allow use of the
+                user's device's gyroscope.
+            */
+            
+            // webpage has finished loading all .js and .css code all 
+            console.log("webpage loaded, all .js and .css code files have been imported and executed");
+            
+            var buttons;
+            console.log(document.getElementsByTagName("button"));
+
+            if (document.getElementsByTagName("button")) {
+                // buttons found on the webpage!
+                
+                // now find the 'enter vr button' and set its 'onclick' property to call the JS function 'myFunction()' 
+                if (document.getElementsByClassName("a-enter-vr-button")) {
+                    console.log("enter VR HTML <button> is on the webpage");
+                    
+                    // change enter-vr-button settings so that it'll call our permission-request function
+                    document.getElementsByClassName("a-enter-vr-button").item(0).setAttribute("onclick", "requestPermissions()");
+                    
+                    // print the button to the console to make sure it's 'onclick' property is set to call function 
+                    console.log(document.getElementsByClassName("a-enter-vr-button").item(0))
+                }
+                
+            }
+            else {
+                console.log("no buttons found on the page");
+            }
+        }
+      </script>  
 
   </body>
 </html>
